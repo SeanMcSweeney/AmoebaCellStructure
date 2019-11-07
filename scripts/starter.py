@@ -13,7 +13,6 @@ def main():
 		Boundary=getBoundary(B)
 		ROI=getROI(B,I)
 		Contours=getcontours(Boundary,ROI,Z)
-		Biggest=getbiggest(Z,Contours)
 
 
 
@@ -29,18 +28,13 @@ def getChannelet(I):
 		YUV = cv2.cvtColor(I, cv2.COLOR_BGR2YUV)
 		Single = YUV[:,:,2]
 
+		print("HI")
 		# Pass through a high pass filter
 		k =np.array([[-1,-1,-1],[-1,8,-1],[-1,-1,-1]], dtype=float)
-		Filter =cv2.filter2D(I,ddepth=-1,kernel=k)
+		Filter =cv2.filter2D(Single,ddepth=-1,kernel=k)
 
-		# Grab gray scale 
-		# TODO change it <SEAN> (discuss)
-		G = cv2.cvtColor(I, cv2.COLOR_BGR2GRAY)
-		
 		# Get binary
-		ret2,B = cv2.threshold(G,0,255,cv2.THRESH_OTSU)
-
-		cv2.imshow("img", ret2)
+		ret2,B = cv2.threshold(Filter,0,255,cv2.THRESH_OTSU)
 
 		return B
 
