@@ -40,6 +40,8 @@ def getChannelet(I):
 		# Get binary
 		ret2,B = cv2.threshold(G,0,255,cv2.THRESH_OTSU)
 
+		cv2.imshow("img", ret2)
+
 		return B
 
 # Get the ROI
