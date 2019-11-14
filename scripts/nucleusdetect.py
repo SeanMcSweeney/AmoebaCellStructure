@@ -8,8 +8,8 @@ from matplotlib import image as image
 
 #Opening the image:
 
-I = cv2.imread("cropped.jpg")
-cv2.imshow("Orig image", I) 
+I = cv2.imread("../images/cropped.jpg")
+cv2.imshow("Orig image", I)
 
 #Converting to YUV colour space and extracting the V channel:
 
