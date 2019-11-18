@@ -33,8 +33,6 @@ def getROI(B,I):
 def getBoundary(B):
 		# Shape
 		shape = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(2,2))
-		# create the kernal +size
-		kernel = np.ones((2,2),np.uint8)
 		# Create the boundary
 		Boundary = cv2.morphologyEx(B,cv2.MORPH_GRADIENT,shape)
 		# Get the regions of interest (Cells)
