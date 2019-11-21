@@ -9,7 +9,7 @@ import imutils
 #task histogram
 def  getImage():
 		#f = easygui.fileopenbox()
-		I = cv2.imread("amoeba.jpg")
+		I = cv2.imread("../images/amoeba.jpg")
 		return I
 
 # TODO Change this to include better filter
@@ -85,12 +85,11 @@ def findCellMembrance(C,ROI,Current):
 	M = cv2.moments(C[0])
 	cX = int(M["m10"] / M["m00"])
 	cY = int(M["m01"] / M["m00"])
-	cv2.putText(Current, "Membrane", (cX + int(cX/4), cY),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+	cv2.putText(Current, "Membrane", (cX + int(cX/2)-40, cY-80),cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
 	# places next to membrane
-	cv2.putText(Current, "Cytoplasm", (cX + int(cX/6), cY+40),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 212),2)
+	cv2.putText(Current, "Cytoplasm", (cX-30, cY-140),cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255),2)
 	# Draw contours
 	I = cv2.drawContours(Current, C[0], -1, (0,0,255), 2)
-
 	return I
 
 def DrawNucleus(count,arrayXYWH):
@@ -102,12 +101,34 @@ def DrawNucleus(count,arrayXYWH):
 	radius = int(radius)
 	cv2.circle(I,center,radius,(0,255,0),2)
 	font = cv2.FONT_HERSHEY_SIMPLEX
-	cv2.putText(I,'Nucleus',(int(x + disx)-int(radius),int(y + disy)+int(radius)+23), font, 1, (0, 255, 0), 2, cv2.LINE_AA)
+	cv2.putText(I,'Nucleus',(int(x + disx)-int(radius),int(y + disy)+int(radius)+23), font, 1.2, (0, 255, 0), 2, cv2.LINE_AA)
 	return I
 
+def crop2(Boundary,I):
+	c, hierarchy = cv2.findContours(Boundary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+	c = sorted(c, key=cv2.contourArea, reverse=True)
+	x, y, w, h = cv2.boundingRect(c[0])
+	croppedimg2 = I[y:y + h, x:x + w]
+	return croppedimg2
 
-def show(I):
-		cv2.imshow("img",I)
+def singleGray(I):
+	# convert to YUV
+	grey = cv2.cvtColor(I, cv2.COLOR_BGR2GRAY)
+	return grey
+
+def OverlayImg(I,Crop,arrayXYWH):
+	BGR = cv2.cvtColor(I, cv2.COLOR_GRAY2BGR)
+	x = arrayXYWH[0]
+	y = arrayXYWH[1]
+	s_img = Crop
+	l_img = BGR
+	x_offset = x
+	y_offset = y
+	l_img[y_offset:y_offset + s_img.shape[0], x_offset:x_offset + s_img.shape[1]] = s_img
+	return l_img
+
+def show(img):
+		cv2.imshow("img",img)
 		key = cv2.waitKey(0)
 
 I = getImage()
@@ -119,12 +140,13 @@ C = getcontours(Boundary)
 I = bindRectangle(Z,C)
 arrayXYWH = findXY(Boundary,I)
 Croppedimg = crop(Boundary,I)
-
 threshold = getThresh(Croppedimg)
 getCont = findNucleus(threshold)
 drawNucleus = DrawNucleus(getCont, arrayXYWH)
-
-
 m = findCellMembrance(C,ROI,drawNucleus)
-show(m)
+Croppedimg2 = crop2(Boundary,m)
+grey = singleGray(getImage())
+FinalImg = OverlayImg(grey,Croppedimg2,arrayXYWH)
+
+show(FinalImg)
 key = cv2.waitKey(0)
